@@ -1,0 +1,59 @@
+---
+# Pre Req
+# 1. CertManager CRDs
+# 2. CertManager HelmChart
+# 3. Traefik HelmChart
+
+- name: Create manifests directory for temp configuration
+  file:
+    path: /tmp/k3s
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    mode: 0755
+  run_once: true
+
+- name: Templates Copy - create directory structure
+  file:
+    state: directory
+    dest: /tmp/k3s/{{ item.path }}
+  with_filetree: ../templates/
+  when: item.state == 'directory'
+
+- name: Templates Copy - copy files
+  template:
+    src: '{{ item.src }}'
+    dest: /tmp/k3s/{{ item.path }}
+    force: yes
+  with_filetree: ../templates/
+  when: item.state == 'file'
+
+# - name: Show Template Files copied
+#   shell: >-
+#     ls -alR /tmp/k3s
+#   register: this
+# - debug:
+#     var: this.stdout_lines  
+
+- name: Create Cloudflare API Key secret
+  shell: >-
+    kubectl apply -f /tmp/k3s/issuers/secret-cf-token.yaml
+
+- name: Create letsencrypt staging issuer
+  shell: >-
+    kubectl apply -f /tmp/k3s/issuers/letsencrypt-staging.yaml
+  when: not production
+
+- name: Create letsencrypt production issuer
+  shell: >-
+    kubectl apply -f /tmp/k3s/issuers/letsencrypt-production.yaml
+  when: production
+
+- name: Create letsencrypt staging cert
+  shell: >-
+    kubectl apply -f /tmp/k3s/certificates/staging/local-kube.yaml
+  when: not production
+
+- name: Create letsencrypt production cert
+  shell: >-
+    kubectl apply -f /tmp/k3s/certificates/production/local-kube.yaml
+  when: production

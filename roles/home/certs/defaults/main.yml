@@ -1,0 +1,8 @@
+---
+reset: false
+production: false
+cf_zone_api_key: "{{var_cf_zone_api_key}}"
+cf_email: "{{var_cf_email}}"
+root_domain: "{{var_root_domain}}"
+kube_domain: "{{var_kube_domain}}"
+kube_domain_name: "{{var_kube_domain_name}}"

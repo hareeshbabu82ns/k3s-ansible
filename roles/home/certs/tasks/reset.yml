@@ -1,0 +1,55 @@
+---
+- name: Create manifests directory for temp configuration
+  file:
+    path: /tmp/k3s
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    mode: 0755
+  run_once: true
+
+- name: Templates Copy - create directory structure
+  file:
+    state: directory
+    dest: /tmp/k3s/{{ item.path }}
+  with_filetree: ../templates/
+  when: item.state == 'directory'
+
+- name: Templates Copy - copy files
+  template:
+    src: '{{ item.src }}'
+    dest: /tmp/k3s/{{ item.path }}
+    force: yes
+  with_filetree: ../templates/
+  when: item.state == 'file'
+
+# - name: Show Template Files copied
+#   shell: >-
+#     ls -alR /tmp/k3s
+#   register: this
+# - debug:
+#     var: this.stdout_lines  
+
+- name: Delete Cloudflare API Key secret
+  shell: >-
+    kubectl delete -f /tmp/k3s/issuers/secret-cf-token.yaml
+  ignore_errors: yes
+
+- name: Delete letsencrypt staging issuer
+  shell: >-
+    kubectl delete -f /tmp/k3s/issuers/letsencrypt-staging.yaml
+  when: not production
+
+- name: Delete letsencrypt production issuer
+  shell: >-
+    kubectl delete -f /tmp/k3s/issuers/letsencrypt-production.yaml
+  when: production
+
+- name: Delete letsencrypt staging cert
+  shell: >-
+    kubectl delete -f /tmp/k3s/certificates/staging/local-kube.yaml
+  when: not production
+
+- name: Delete letsencrypt production cert
+  shell: >-
+    kubectl delete -f /tmp/k3s/certificates/production/local-kube.yaml
+  when: production

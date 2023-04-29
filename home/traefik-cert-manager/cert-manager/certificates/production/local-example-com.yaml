@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kube-terabits-io
+  namespace: default
+spec:
+  secretName: kube-terabits-io-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "*.kube.local.io"
+  dnsNames:
+  - "kube.local.io"
+  - "*.kube.local.io"

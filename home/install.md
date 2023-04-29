@@ -47,7 +47,6 @@ mkdir ~/.kube
 scp km1:/etc/rancher/k3s/k3s.yaml ~/.kube/config
 echo 'source <(kubectl completion bash)' >>~/.bashrc
 echo 'alias k=kubectl' >>~/.bashrc
-echo 'complete -o default -F __start_kubectl k' >>~/.bashrc
 
 vi ~/.kube/config # update ip to point to vip
 ```

@@ -1,0 +1,13 @@
+---
+- name: Deploy certs
+  include_tasks: deploy.yml
+  when: not reset
+
+- name: Delete certs
+  include_tasks: reset.yml
+  when: reset
+
+- name: Remove tmp directory used for manifests
+  file:
+    path: /tmp/k3s
+    state: absent

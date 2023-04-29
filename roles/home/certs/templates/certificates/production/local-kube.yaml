@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{kube_domain_name}}"
+  namespace: default
+spec:
+  secretName: "{{kube_domain_name}}-tls"
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "*.{{kube_domain}}"
+  dnsNames:
+  - "{{kube_domain}}"
+  - "*.{{kube_domain}}"
